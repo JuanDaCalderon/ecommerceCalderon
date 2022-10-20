@@ -1,0 +1,11 @@
+@use '../../styles/variables' as var;
+
+
+.root {
+  padding: 20px 0px;
+  background-color: var.$grey4;
+  .wrapper {
+    display: flex;
+    justify-content: space-between;
+  }
+}
