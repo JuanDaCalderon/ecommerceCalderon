@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -11,6 +11,7 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
+import { Link } from 'react-router-dom';
 
 import { styled } from '@mui/material/styles';
 
@@ -20,17 +21,16 @@ import logo from '../../assets/logo.svg'
 import isotipo from '../../assets/isotipo.svg'
 import { Divider } from '@mui/material';
 
-const paginas = ['Zapatos', 'Mujer', 'Hombre'];
-const perfil = ['Perfil', 'Logout'];
-
 const CustomNavBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: '#F7F7F7',
   color: '#1F3B53',
 }));
 
-const NavBar = () => {
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
+const NavBar = ({ categories, settings }) => {
+  const paginas = [...categories];
+  const perfil = [...settings];
+  const [anchorElNav, setAnchorElNav] = useState(null);
+  const [anchorElUser, setAnchorElUser] = useState(null);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -51,13 +51,16 @@ const NavBar = () => {
     <CustomNavBar position="fixed">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Box
-            component="img"
-            sx={{ display: { xs: 'none', md: 'flex' }, mr: 5 }}
-            width={100}
-            src={logo}
-            alt="logo"
-          />
+          <Link to="/">
+            <Box
+              component="img"
+              sx={{ display: { xs: 'none', md: 'flex' }, mr: 5 }}
+              width={100}
+              src={logo}
+              alt="logo"
+            />
+          </Link>
+
 
           <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
             <IconButton
@@ -91,7 +94,11 @@ const NavBar = () => {
               {paginas.map((page, index) => (
                 <Box key={index}>
                   <MenuItem key={page} onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center" sx={{ color: '#1F3B53' }}>{page}</Typography>
+                    <Link to={`/category/${page}`}>
+                      <Typography textAlign="center" sx={{ color: '#1F3B53' }}>
+                        {page}
+                      </Typography>
+                    </Link>
                   </MenuItem>
                   {index !== paginas.length - 1 && (
                     <Divider></Divider>
@@ -104,8 +111,7 @@ const NavBar = () => {
           <Typography
             variant="h5"
             noWrap
-            component="a"
-            href=""
+            component="span"
             sx={{
               mr: 2,
               display: { xs: 'flex', md: 'none' },
@@ -117,27 +123,30 @@ const NavBar = () => {
               textDecoration: 'none',
             }}
           >
-            <Box
-              component="img"
-              sx={{
-                ml: 3,
-                display: { xs: 'flex', md: 'none' }
-              }}
-              width={45}
-              src={isotipo}
-              alt="logo"
-            />
+            <Link to="/">
+              <Box
+                component="img"
+                sx={{
+                  ml: 3,
+                  display: { xs: 'flex', md: 'none' }
+                }}
+                width={45}
+                src={isotipo}
+                alt="logo"
+              />
+            </Link>
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {paginas.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ mt: 2, mb: 1, color: '#1F3B53', display: 'block' }}
-              >
-                {page}
-              </Button>
+              <Link key={page} to={`/category/${page}`}>
+                <Button
+                  onClick={handleCloseNavMenu}
+                  sx={{ mt: 2, mb: 1, color: '#1F3B53', display: 'block' }}
+                >
+                  {page}
+                </Button>
+              </Link>
             ))}
           </Box>
 
