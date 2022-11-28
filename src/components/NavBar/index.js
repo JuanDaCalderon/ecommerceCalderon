@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -20,6 +20,7 @@ import CartWidget from '../CartWidget';
 import logo from '../../assets/logo.svg'
 import isotipo from '../../assets/isotipo.svg'
 import { Divider } from '@mui/material';
+import { ecommerceContext } from '../../context/context';
 
 const CustomNavBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: '#F7F7F7',
@@ -31,6 +32,15 @@ const NavBar = ({ categories, settings }) => {
   const perfil = [...settings];
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
+  const [isLoggedIn, setisLoggedIn] = useState(false);
+  const { setUser } = useContext(ecommerceContext);
+
+  useEffect(() => {
+    const user = localStorage.getItem('user');
+    if (user) {
+      setisLoggedIn(true);
+    }
+  }, []);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -45,6 +55,14 @@ const NavBar = ({ categories, settings }) => {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
+  };
+
+  const LogOut = () => {
+    setUser({});
+    localStorage.removeItem('user');
+    localStorage.removeItem('x-user-token');
+    setisLoggedIn(false);
+    handleCloseUserMenu();
   };
 
   return (
@@ -151,42 +169,53 @@ const NavBar = ({ categories, settings }) => {
           </Box>
 
           <CartWidget sx={{ mr: 4, mt: 1, display: { xs: 'flex', md: 'flex' } }} />
-
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open perfil">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="user" src={''} />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: '45px' }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              {perfil.map((setting, index) => (
-                <Box key={index}>
-                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                    <Typography sx={{ color: '#1F3B53' }} textAlign="center">{setting}</Typography>
-                  </MenuItem>
-                  {index !== perfil.length - 1 && (
-                    <Divider ></Divider>
-                  )
+          {
+            isLoggedIn ?
+              <Box sx={{ flexGrow: 0 }}>
+                <Tooltip title="Open perfil">
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <Avatar alt="user" src={''} />
+                  </IconButton>
+                </Tooltip>
+                <Menu
+                  sx={{ mt: '45px' }}
+                  id="menu-appbar"
+                  anchorEl={anchorElUser}
+                  anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
+                >
+                  {
+                    perfil.map((setting, index) => (
+                      <Box key={index}>
+                        <MenuItem key={setting} onClick={LogOut}>
+                          <Typography sx={{ color: '#1F3B53' }} textAlign="center">{setting}</Typography>
+                        </MenuItem>
+                        {index !== perfil.length - 1 && (
+                          <Divider ></Divider>
+                        )
+                        }
+                      </Box>
+                    ))
                   }
-                </Box>
-              ))}
-            </Menu>
-          </Box>
+                </Menu>
+              </Box>
+              :
+
+              <Link to={`/login`}>
+                <Button variant="contained">
+                  Iniciar sesión
+                </Button>
+              </Link>
+          }
         </Toolbar>
       </Container>
     </CustomNavBar>

@@ -12,6 +12,7 @@ const ItemCount = ({ amount, sumaHandleClick, restaHandleClick }) => {
                     startAdornment={<InputAdornment position="start">Und</InputAdornment>}
                     label="Amount"
                     size="small"
+                    disabled
                 />
             </FormControl>
             <ButtonGroup

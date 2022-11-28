@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { useParams, useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { ecommerceContext } from '../../context/context';
 
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 import { Box, Grid, Container, Card, CardMedia, Typography, Divider, Chip, Button } from '@mui/material';
 import { ItemCount, Loader } from '../../components';
+import { toast } from 'react-toastify';
 
 const ItemDetailContainer = () => {
   let navigate = useNavigate();
   const itemId = useParams();
-  const productsState = useSelector(state => state.tienda);
+  const productsState = useContext(ecommerceContext);
+  const { cart, setCart, user } = productsState;
   const [productDetail, setproductDetail] = useState({});
   const [amount, setamount] = useState(1);
   const [loading, setloading] = useState(true);
@@ -27,16 +29,35 @@ const ItemDetailContainer = () => {
   }, [itemId, productsState, navigate]);
 
   const sumaHandleClick = () => {
-    setamount(amount + 1);
+    if (amount < productDetail.quantity) setamount(amount + 1);
+    else toast.error('No hay más stock disponible');
   };
 
   const restaHandleClick = () => {
     if (amount > 1) setamount(amount - 1);
+    else toast.error('No se puede agregar menos de 1 producto');
+  };
+
+  const addItemCart = () => {
+    if (Object.entries(user).length <= 0 && !localStorage.getItem('user')) toast.error('Debe iniciar sesión para agregar productos al carrito');
+    else {
+      const newCart = { ...cart };
+      const productAlreadyAddedIndex = cart.products.findIndex(product => product.id === productDetail.id);
+      if (productAlreadyAddedIndex !== -1) {
+        newCart.products[productAlreadyAddedIndex].amount += amount;
+        toast.success('Ya hay un producto con estas caracterisiticas en el carrito de compras, se ha actualizado la cantidad');
+      }
+      else {
+        newCart.products.push({ ...productDetail, amount });
+        toast.success('Producto agregado al carrito');
+      }
+      setCart(newCart);
+    }
   };
 
   return (
     <Box component='main' height='100vh' overflow='auto' paddingY={14} >
-      <Container Container maxWidth="xl" >
+      <Container container='true' maxWidth="xl" >
         {!loading ?
           <Grid container spacing={6}>
             <Grid item sm={12} md={6}>
@@ -72,7 +93,7 @@ const ItemDetailContainer = () => {
               <Box sx={{ marginBottom: '1rem' }}>
                 <Grid container spacing={2} sx={{ display: 'flex' }}>
                   <Grid item md={6} lg={8}>
-                    <Button variant="contained" color='secondary' startIcon={<ShoppingCartCheckoutIcon color='action' />}>
+                    <Button variant="contained" color='secondary' startIcon={<ShoppingCartCheckoutIcon color='action' />} onClick={addItemCart}>
                       Agregar al carrito
                     </Button>
                   </Grid>
